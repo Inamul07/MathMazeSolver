@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MathMaze Solver</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">MathMaze Solver</p>
+        <h1>Paste a maze, solve the path, and inspect the expression.</h1>
+        <p class="subtitle">Static, dark-mode, mobile-friendly, and ready for GitHub Pages.</p>
+      </div>
+      <div class="panel stats-panel">
+        <div>
+          <span class="stat-label">Rule</span>
+          <strong>Right and down only</strong>
+        </div>
+        <div>
+          <span class="stat-label">Evaluation</span>
+          <strong>Left to right</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="panel input-panel">
+        <label for="mazeInput">Maze input</label>
+        <textarea id="mazeInput" spellcheck="false" aria-describedby="inputHelp">7 * 2 * 6 +
+- 1 - 2 - 2
+3 * 5 + 5 -
+- 4 + 9 + 5
+2 + 3 + 9 /
++ 9 / 3 * 7</textarea>
+        <p id="inputHelp" class="help-text">Use one row per line. Separate cells with spaces. Digits and operators are allowed.</p>
+
+        <div class="controls">
+          <label for="targetInput">Target</label>
+          <input id="targetInput" type="number" value="6" inputmode="numeric" />
+          <button id="solveButton" type="button">Solve maze</button>
+          <button id="resetButton" type="button" class="secondary">Reset</button>
+        </div>
+
+        <div id="message" class="message" aria-live="polite"></div>
+      </div>
+
+      <div class="panel grid-panel">
+        <div class="panel-heading">
+          <h2>Grid</h2>
+          <p>Cells highlighted in teal are part of the solved path.</p>
+        </div>
+        <div id="grid" class="maze-grid" aria-label="Solved maze grid"></div>
+      </div>
+
+      <div class="panel result-panel">
+        <div class="panel-heading">
+          <h2>Result</h2>
+          <p>Expression and path details appear here after solving.</p>
+        </div>
+        <div class="result-card">
+          <div>
+            <span class="stat-label">Status</span>
+            <strong id="statusValue">Waiting</strong>
+          </div>
+          <div>
+            <span class="stat-label">Expression</span>
+            <strong id="expressionValue">-</strong>
+          </div>
+          <div>
+            <span class="stat-label">Value</span>
+            <strong id="valueValue">-</strong>
+          </div>
+          <div>
+            <span class="stat-label">Path</span>
+            <strong id="pathValue">-</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
