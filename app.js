@@ -8,6 +8,13 @@ const statusValue = document.getElementById('statusValue');
 const expressionValue = document.getElementById('expressionValue');
 const valueValue = document.getElementById('valueValue');
 const pathValue = document.getElementById('pathValue');
+const cellModal = document.getElementById('cellModal');
+const closeModalButton = document.getElementById('closeModalButton');
+const modalHint = document.getElementById('modalHint');
+const modalOptions = document.getElementById('modalOptions');
+
+const numberChoices = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+const operatorChoices = ['+', '-', '*', '/'];
 
 const sampleMaze = `7 * 2 * 6 +
 - 1 - 2 - 2
@@ -17,6 +24,7 @@ const sampleMaze = `7 * 2 * 6 +
 + 9 / 3 * 7`;
 
 let currentMaze = null;
+let selectedCell = null;
 
 function setMessage(text, type = '') {
   message.textContent = text;
@@ -47,6 +55,57 @@ function parseMaze(text) {
   }
 
   return rows;
+}
+
+function mazeToText(maze) {
+  return maze.map((row) => row.join(' ')).join('\n');
+}
+
+function isNumberCell(row, col) {
+  return (row + col) % 2 === 0;
+}
+
+function resetResultState() {
+  statusValue.textContent = 'Waiting';
+  expressionValue.textContent = '-';
+  valueValue.textContent = '-';
+  pathValue.textContent = '-';
+}
+
+function openCellModal(row, col) {
+  if (!currentMaze) {
+    return;
+  }
+
+  selectedCell = { row, col };
+  const choices = isNumberCell(row, col) ? numberChoices : operatorChoices;
+  modalHint.textContent = isNumberCell(row, col)
+    ? `Cell (${row + 1}, ${col + 1}) accepts a number.`
+    : `Cell (${row + 1}, ${col + 1}) accepts an operator.`;
+
+  modalOptions.innerHTML = '';
+  for (const symbol of choices) {
+    const option = document.createElement('button');
+    option.type = 'button';
+    option.className = 'modal-option';
+    option.textContent = symbol;
+    option.addEventListener('click', () => {
+      currentMaze[row][col] = symbol;
+      mazeInput.value = mazeToText(currentMaze);
+      closeCellModal();
+      resetResultState();
+      renderGrid(currentMaze);
+      setMessage('Cell updated. Solve to check the new maze.');
+    });
+    modalOptions.appendChild(option);
+  }
+
+  cellModal.classList.remove('hidden');
+}
+
+function closeCellModal() {
+  selectedCell = null;
+  cellModal.classList.add('hidden');
 }
 
 function evaluateExpression(expr) {
@@ -146,11 +205,13 @@ function renderGrid(maze, solvedPath = []) {
 
   maze.forEach((row, rowIndex) => {
     row.forEach((cell, colIndex) => {
-      const cellEl = document.createElement('div');
+      const cellEl = document.createElement('button');
+      cellEl.type = 'button';
       cellEl.className = 'cell';
       cellEl.textContent = cell;
       cellEl.setAttribute('role', 'gridcell');
       cellEl.setAttribute('aria-label', `Row ${rowIndex + 1}, column ${colIndex + 1}: ${cell}`);
+      cellEl.addEventListener('click', () => openCellModal(rowIndex, colIndex));
 
       if (rowIndex === 0 && colIndex === 0) {
         cellEl.classList.add('start');
@@ -171,12 +232,10 @@ function renderGrid(maze, solvedPath = []) {
 
 function resetView() {
   currentMaze = parseMaze(sampleMaze);
+  mazeInput.value = mazeToText(currentMaze);
   renderGrid(currentMaze);
-  statusValue.textContent = 'Waiting';
-  expressionValue.textContent = '-';
-  valueValue.textContent = '-';
-  pathValue.textContent = '-';
-  setMessage('Paste a maze and press Solve to find a valid path.');
+  resetResultState();
+  setMessage('Click a cell in the grid to edit, then press Solve.');
 }
 
 function pathToString(path) {
@@ -228,11 +287,32 @@ resetButton.addEventListener('click', () => {
 });
 
 mazeInput.addEventListener('input', () => {
-  setMessage('Maze updated. Solve again to refresh the highlighted path.');
+  try {
+    currentMaze = parseMaze(mazeInput.value);
+    renderGrid(currentMaze);
+    resetResultState();
+    setMessage('Maze updated from text input.');
+  } catch (error) {
+    setMessage(error.message, 'error');
+  }
 });
 
 targetInput.addEventListener('input', () => {
   setMessage('Target updated. Solve again to refresh the highlighted path.');
+});
+
+closeModalButton.addEventListener('click', closeCellModal);
+
+cellModal.addEventListener('click', (event) => {
+  if (event.target === cellModal) {
+    closeCellModal();
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !cellModal.classList.contains('hidden')) {
+    closeCellModal();
+  }
 });
 
 resetView();

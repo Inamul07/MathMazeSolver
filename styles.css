@@ -216,6 +216,13 @@ button:hover {
   font-size: clamp(1rem, 2vw, 1.3rem);
   font-weight: 700;
   user-select: none;
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease;
+}
+
+.cell:hover {
+  transform: translateY(-1px);
+  border-color: rgba(77, 208, 200, 0.45);
 }
 
 .cell.path {
@@ -237,6 +244,58 @@ button:hover {
 .result-card strong {
   display: block;
   word-break: break-word;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 10, 20, 0.72);
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  z-index: 60;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-card {
+  width: min(520px, 100%);
+  background: linear-gradient(180deg, rgba(18, 25, 47, 0.98), rgba(8, 13, 28, 0.98));
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.modal-close {
+  padding: 10px 14px;
+}
+
+.modal-options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.modal-option {
+  min-height: 52px;
+  border-radius: 14px;
+  font-size: 1.05rem;
 }
 
 @media (max-width: 1024px) {
@@ -271,5 +330,9 @@ button:hover {
   .cell {
     min-height: 52px;
     border-radius: 14px;
+  }
+
+  .modal-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }

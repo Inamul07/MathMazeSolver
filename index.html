@@ -12,7 +12,6 @@
       <div>
         <p class="eyebrow">MathMaze Solver</p>
         <h1>Paste a maze, solve the path, and inspect the expression.</h1>
-        <p class="subtitle">Static, dark-mode, mobile-friendly, and ready for GitHub Pages.</p>
       </div>
       <div class="panel stats-panel">
         <div>
@@ -50,7 +49,7 @@
       <div class="panel grid-panel">
         <div class="panel-heading">
           <h2>Grid</h2>
-          <p>Cells highlighted in teal are part of the solved path.</p>
+          <p>Tap a cell to edit it. Number and operator options are shown automatically.</p>
         </div>
         <div id="grid" class="maze-grid" aria-label="Solved maze grid"></div>
       </div>
@@ -81,6 +80,17 @@
       </div>
     </section>
   </main>
+
+  <div id="cellModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle">Choose symbol</h3>
+        <button id="closeModalButton" type="button" class="secondary modal-close">Close</button>
+      </div>
+      <p id="modalHint" class="help-text">Select one value to place in the selected cell.</p>
+      <div id="modalOptions" class="modal-options"></div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
