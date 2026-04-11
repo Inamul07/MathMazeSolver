@@ -1,6 +1,7 @@
 const mazeInput = document.getElementById('mazeInput');
 const targetInput = document.getElementById('targetInput');
 const solveButton = document.getElementById('solveButton');
+const exampleButton = document.getElementById('exampleButton');
 const resetButton = document.getElementById('resetButton');
 const grid = document.getElementById('grid');
 const message = document.getElementById('message');
@@ -15,6 +16,7 @@ const modalOptions = document.getElementById('modalOptions');
 
 const numberChoices = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const operatorChoices = ['+', '-', '*', '/'];
+const EMPTY_SYMBOL = '.';
 
 const sampleMaze = `7 * 2 * 6 +
 - 1 - 2 - 2
@@ -25,6 +27,10 @@ const sampleMaze = `7 * 2 * 6 +
 
 let currentMaze = null;
 let selectedCell = null;
+
+function createEmptyMaze(rows, cols) {
+  return Array.from({ length: rows }, () => Array.from({ length: cols }, () => EMPTY_SYMBOL));
+}
 
 function setMessage(text, type = '') {
   message.textContent = text;
@@ -48,7 +54,7 @@ function parseMaze(text) {
 
   for (const row of rows) {
     for (const cell of row) {
-      if (!/^[0-9]+$/.test(cell) && !/^[+\-*/]$/.test(cell)) {
+      if (!/^[0-9]+$/.test(cell) && !/^[+\-*/]$/.test(cell) && cell !== EMPTY_SYMBOL) {
         throw new Error(`Invalid cell value: ${cell}`);
       }
     }
@@ -70,6 +76,25 @@ function resetResultState() {
   expressionValue.textContent = '-';
   valueValue.textContent = '-';
   pathValue.textContent = '-';
+}
+
+function validateMazeForSolve(maze) {
+  for (let row = 0; row < maze.length; row += 1) {
+    for (let col = 0; col < maze[0].length; col += 1) {
+      const cell = maze[row][col];
+      if (cell === EMPTY_SYMBOL) {
+        throw new Error('The maze has empty cells. Fill every cell before solving.');
+      }
+
+      if (isNumberCell(row, col) && !/^[0-9]+$/.test(cell)) {
+        throw new Error(`Cell (${row + 1}, ${col + 1}) must be a number.`);
+      }
+
+      if (!isNumberCell(row, col) && !/^[+\-*/]$/.test(cell)) {
+        throw new Error(`Cell (${row + 1}, ${col + 1}) must be an operator.`);
+      }
+    }
+  }
 }
 
 function openCellModal(row, col) {
@@ -208,10 +233,14 @@ function renderGrid(maze, solvedPath = []) {
       const cellEl = document.createElement('button');
       cellEl.type = 'button';
       cellEl.className = 'cell';
-      cellEl.textContent = cell;
+      cellEl.textContent = cell === EMPTY_SYMBOL ? '' : cell;
       cellEl.setAttribute('role', 'gridcell');
-      cellEl.setAttribute('aria-label', `Row ${rowIndex + 1}, column ${colIndex + 1}: ${cell}`);
+      cellEl.setAttribute('aria-label', `Row ${rowIndex + 1}, column ${colIndex + 1}: ${cell === EMPTY_SYMBOL ? 'empty' : cell}`);
       cellEl.addEventListener('click', () => openCellModal(rowIndex, colIndex));
+
+      if (cell === EMPTY_SYMBOL) {
+        cellEl.classList.add('empty');
+      }
 
       if (rowIndex === 0 && colIndex === 0) {
         cellEl.classList.add('start');
@@ -231,11 +260,19 @@ function renderGrid(maze, solvedPath = []) {
 }
 
 function resetView() {
+  currentMaze = createEmptyMaze(6, 6);
+  mazeInput.value = mazeToText(currentMaze);
+  renderGrid(currentMaze);
+  resetResultState();
+  setMessage('Empty grid ready. Click cells to fill values, or load Example Grid.');
+}
+
+function loadExampleGrid() {
   currentMaze = parseMaze(sampleMaze);
   mazeInput.value = mazeToText(currentMaze);
   renderGrid(currentMaze);
   resetResultState();
-  setMessage('Click a cell in the grid to edit, then press Solve.');
+  setMessage('Example grid loaded.');
 }
 
 function pathToString(path) {
@@ -245,6 +282,7 @@ function pathToString(path) {
 function handleSolve() {
   try {
     currentMaze = parseMaze(mazeInput.value);
+    validateMazeForSolve(currentMaze);
     const target = Number(targetInput.value);
 
     if (!Number.isFinite(target)) {
@@ -280,14 +318,23 @@ function handleSolve() {
 }
 
 solveButton.addEventListener('click', handleSolve);
+exampleButton.addEventListener('click', loadExampleGrid);
 resetButton.addEventListener('click', () => {
-  mazeInput.value = sampleMaze;
   targetInput.value = '6';
   resetView();
 });
 
 mazeInput.addEventListener('input', () => {
   try {
+    if (!mazeInput.value.trim()) {
+      currentMaze = createEmptyMaze(6, 6);
+      mazeInput.value = mazeToText(currentMaze);
+      renderGrid(currentMaze);
+      resetResultState();
+      setMessage('Empty grid restored.');
+      return;
+    }
+
     currentMaze = parseMaze(mazeInput.value);
     renderGrid(currentMaze);
     resetResultState();

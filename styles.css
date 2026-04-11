@@ -152,7 +152,7 @@ button:focus-visible {
 
 .controls {
   display: grid;
-  grid-template-columns: 1fr 1fr auto auto;
+  grid-template-columns: 1fr 1fr auto auto auto;
   gap: 12px;
   align-items: end;
 }
@@ -223,6 +223,11 @@ button:hover {
 .cell:hover {
   transform: translateY(-1px);
   border-color: rgba(77, 208, 200, 0.45);
+}
+
+.cell.empty {
+  color: rgba(148, 163, 184, 0.5);
+  border-style: dashed;
 }
 
 .cell.path {
